@@ -4,7 +4,7 @@ An unsuccessful attempt at beating 2048 with openai, stable-baselines
 
 ## References
 
-Used this [link] api. However the game was broken, so had to fix it first. Also added some functionality to ease automate playing it
+Used this [[api](https://github.com/bfontaine/term2048.git). However the game was broken, so had to fix it first. Also added some functionality to ease automate playing it
 
 
 
@@ -22,3 +22,5 @@ Not all models are supported
 
 
 Can add another layer of observation that looks ahead and decides idle actions. But once one starts looking ahead, what's the point of using RL in this problem? 
+
+2048 folder contains the 2048 game [unadulterated from high heavens](https://github.com/gabrielecirulli/2048)
