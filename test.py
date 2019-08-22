@@ -2,45 +2,71 @@ import gym
 import json
 import datetime as dt
 
-from selenium import webdriver
-
-from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import DummyVecEnv
-from stable_baselines import PPO2
 
-from TestEnv import Game2048Env
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
+from testEnv import Game2048Env
 
 import os.path
 import re
 import os
 
+import sys
+
+from tensorflow.nn import leaky_relu
 
 
-model_name = "ppo2_2048"
+model_list = ["A2C", "ACER", "ACKTR", "DDPG", "DQN", "GAIL", "HER", "PPO1", "PPO2", "SAC", "TRPO"]
+
+if len(sys.argv) != 2:
+	print("Invalid arguments. Usage: python3 main.py [model_index]") 
+	for i in range(len(model_list)):
+		print(model_list[i] + ":", i)
+	exit(1)
+
+
+
+# TRPO = imp.load_source("stable_baselines", )
+_model = __import__("stable_baselines", globals(), locals(), [model_list[int(sys.argv[1])]], 0)
+MODEL = getattr(_model, model_list[int(sys.argv[1])])
+# exit(1)
+
+if model_list[int(sys.argv[1])] == "DQN":
+	from stable_baselines.deepq.policies import MlpPolicy
+else:
+	from stable_baselines.common.policies import MlpPolicy
+
+
+model_name = "weights/" + model_list[int(sys.argv[1])] + "_2048"
 
 
 driver = webdriver.Firefox(executable_path="./geckodriver")
-# The algorithms require a vectorized environment to run
 env = DummyVecEnv([lambda: Game2048Env(driver)])
+
+policy_kwargs = dict(act_fun=leaky_relu, net_arch=[32, 16, 8])
 
 
 if not os.path.exists(model_name + ".pkl"):
-	model = PPO2(MlpPolicy, env, verbose=1)
-	print("testing on untrained model")
+	model = MODEL(MlpPolicy, env, verbose=1, policy_kwargs=policy_kwargs)
+	print("Testing on untrained model")
 else:
-	model = PPO2.load("ppo2_2048")
+	model = MODEL.load(model_name)
 	model.set_env(env)	
 
 
-
-##### END of LOG #######
-
+# Test the model
 obs = env.reset()
-for i in range(2000):
+dones = [False]
+while not dones[0]:
+# for i in range(20):
     action, _states = model.predict(obs)
-    obs, rewards, done, info = env.step(action)
-    env.render()
+    # print("action, _states: ", action, _states)
+    obs, rewards, dones, info = env.step(action)
+    # env.render()
+    # print(dones)
 
-driver.quit()
+# driver.close()
 
-os.system("say 'testing complete'")
+# os.system("say 'testing complete'")
