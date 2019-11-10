@@ -1,3 +1,4 @@
+import os
 import re
 import numpy as np
 
@@ -7,7 +8,8 @@ from selenium.webdriver.common.keys import Keys
 from term2048 import Game
 
 
-url = "file:///Users/kaankatircioglu/Desktop/push_here/2048bot/2048/index.html"
+url = "file://" + os.path.dirname(os.path.abspath(__file__)) + "/2048/index.html"
+print(url)
 meanings = [Keys.ARROW_LEFT, Keys.ARROW_DOWN, Keys.ARROW_RIGHT, Keys.ARROW_UP]
 
 directions = ["left", "down", "right", "up"]
@@ -28,12 +30,12 @@ def main():
 		pile = [0, 0, 0, 0]
 
 		for i in range(4):
-			reward, moves = calculate_moves(game, 2)
+			reward, moves = calculate_moves(game, 3)
 			if moves is not None:
 				pile[moves[-1]] += 1
 
 		if max(pile) == 0:
-			reward, moves = calculate_moves(game, 1)
+			reward, moves = calculate_moves(game, 4)
 
 		try:
 			game.move(pile.index(max(pile)))
